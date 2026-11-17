@@ -1,0 +1,17 @@
+{
+  "name": "Mi Finca de Cacao",
+  "short_name": "Mi Cacao",
+  "description": "Riego, abonos, suelo, fotos, cosecha y luna para su finca de cacao",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "es",
+  "background_color": "#faf6f0",
+  "theme_color": "#6b3f1d",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

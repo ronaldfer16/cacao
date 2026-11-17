@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mi Finca de Cacao</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6b3f1d">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#faf6f0;--card:#fff;--tx:#2b2118;--mut:#6f6256;--br:#e3d9cc;--ac:#6b3f1d;--acx:#fff;--ok:#2f7d3a;--wr:#b36b00;--bd:#b3261e;--sf:#f3ece2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1410;--card:#261e17;--tx:#f1e8dc;--mut:#b5a595;--br:#3d3126;--ac:#d9a066;--acx:#1a1410;--ok:#6fcf7b;--wr:#f0b24a;--bd:#ff8a80;--sf:#2f251c}}
+:root[data-theme="dark"]{--bg:#1a1410;--card:#261e17;--tx:#f1e8dc;--mut:#b5a595;--br:#3d3126;--ac:#d9a066;--acx:#1a1410;--ok:#6fcf7b;--wr:#f0b24a;--bd:#ff8a80;--sf:#2f251c}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+body{padding:12px;max-width:760px;margin:0 auto}
+h1{font-size:1.3rem;margin:6px 0 2px}h2{font-size:1.05rem;margin:0 0 8px}
+.sub{color:var(--mut);font-size:.85rem;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--br);border-radius:12px;padding:12px;margin-bottom:12px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.tabs button{flex:1 0 auto;padding:10px 12px;border:1px solid var(--br);background:var(--card);color:var(--tx);border-radius:10px;font-size:.9rem;cursor:pointer}
+.tabs button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+label{display:block;font-size:.78rem;color:var(--mut)}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--br);border-radius:8px;background:var(--bg);color:var(--tx);font-size:16px;margin-top:2px}
+.btn{background:var(--ac);color:var(--acx);border:0;border-radius:10px;padding:11px 16px;font-size:1rem;cursor:pointer;margin-top:10px;width:100%}
+.btn:disabled{opacity:.5}
+.item{border-left:4px solid var(--br);background:var(--sf);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:.92rem}
+.item.ok{border-color:var(--ok)}.item.wr{border-color:var(--wr)}.item.bd{border-color:var(--bd)}
+.item b{display:block}
+.big{font-size:1.8rem;font-weight:700;color:var(--ac)}
+ul{margin:6px 0;padding-left:20px}li{margin:3px 0}
+.note{font-size:.78rem;color:var(--mut);margin-top:8px}
+img.pv{max-width:100%;max-height:260px;border-radius:10px;margin-top:8px;display:block}
+.hide{display:none}
+</style>
+</head>
+<body>
+<h1>🍫 Mi Finca de Cacao</h1>
+<div class="sub">Riego, abonos, poda, análisis de suelo, fotos y cosecha estimada</div>
+
+<div class="card">
+<h2>Mi finca</h2>
+<div class="g">
+<label>Hectáreas<input id="ha" type="number" step="0.1" value="2"></label>
+<label>Plantas por hectárea<input id="pph" type="number" value="1111"></label>
+<label>Edad de las plantas (años)<input id="edad" type="number" step="0.5" value="6"></label>
+<label>Variedad<select id="vari"><option value="ccn">CCN-51</option><option value="nac">Nacional (fino de aroma)</option><option value="otro">Otra / mezcla</option></select></label>
+<label>Manejo actual<select id="man"><option value="0.6">Bajo (poco abono/poda)</option><option value="1" selected>Medio</option><option value="1.4">Alto (abono, poda, riego)</option></select></label>
+<label>Tipo de suelo<select id="suelo"><option value="arc">Arcilloso (pesado)</option><option value="fra" selected>Franco</option><option value="are">Arenoso (suelto)</option></select></label>
+</div>
+<div class="note">Estos datos se guardan en este navegador.</div>
+</div>
+
+<div class="tabs" id="tabs">
+<button data-t="hoy" class="on">📅 Hoy</button>
+<button data-t="suelo">🌱 Suelo</button>
+<button data-t="foto">📷 Foto</button>
+<button data-t="cos">🧺 Cosecha</button>
+<button data-t="reg">📒 Registro</button>
+</div>
+
+<section id="hoy">
+<div class="card">
+<h2>Riego de esta semana</h2>
+<label>¿Cuántos mm llovió en los últimos 7 días? (0 si no llovió)<input id="lluvia" type="number" min="0" value="0"></label>
+<div id="riego"></div>
+</div>
+<div class="card"><h2 id="mesTit">Tareas del mes</h2><div id="tareas"></div></div>
+<div class="card"><h2>🌙 La luna</h2><div id="luna"></div></div>
+<div class="card"><h2>Poda: guía rápida</h2>
+<ul>
+<li><b>Fitosanitaria:</b> cada 15 días en lluvias, saque y entierre mazorcas con monilia o mazorca negra.</li>
+<li><b>Mantenimiento:</b> 1 o 2 veces al año, después de la cosecha grande; abra la copa para que entre aire y luz.</li>
+<li><b>Deschuponado:</b> quitar chupones del tronco cada 2 a 3 meses.</li>
+<li><b>Sombra:</b> que pase cerca de 25 a 30 % de sol sobre el cacao.</li>
+</ul></div>
+</section>
+
+<section id="suelo" class="hide">
+<div class="card">
+<h2>Análisis de suelo</h2>
+<div class="sub">Escriba los valores de su laboratorio (deje en blanco lo que no tenga).</div>
+<div class="g">
+<label>pH<input id="s_ph" type="number" step="0.1"></label>
+<label>Materia orgánica (%)<input id="s_mo" type="number" step="0.1"></label>
+<label>Fósforo P (ppm)<input id="s_p" type="number" step="0.1"></label>
+<label>Potasio K (meq/100 ml)<input id="s_k" type="number" step="0.01"></label>
+<label>Calcio Ca (meq/100 ml)<input id="s_ca" type="number" step="0.1"></label>
+<label>Magnesio Mg (meq/100 ml)<input id="s_mg" type="number" step="0.1"></label>
+<label>Azufre / sulfato S (ppm)<input id="s_s" type="number" step="0.1"></label>
+<label>Sodio Na (meq/100 ml)<input id="s_na" type="number" step="0.01"></label>
+<label>Zinc Zn (ppm)<input id="s_zn" type="number" step="0.1"></label>
+<label>Boro B (ppm)<input id="s_b" type="number" step="0.01"></label>
+</div>
+<button class="btn" id="bSuelo">Ver qué le falta a mi suelo</button>
+<div id="rSuelo"></div>
+</div>
+</section>
+
+<section id="foto" class="hide">
+<div class="card">
+<h2>Diagnóstico por foto</h2>
+<div class="sub">Tome una foto clara de la hoja, mazorca o planta con el problema, con buena luz.</div>
+<input type="file" id="file" accept="image/*">
+<img id="pv" class="pv hide" alt="Foto de la planta">
+<label style="margin-top:8px">¿Qué parte es y desde cuándo? (opcional)<textarea id="nota" rows="2" placeholder="Ej: hojas amarillas abajo, llovió mucho la semana pasada"></textarea></label>
+<button class="btn" id="bFoto" disabled>Analizar foto</button>
+<div id="rFoto"></div>
+<div class="note">Es una ayuda orientativa hecha con IA; ante un brote fuerte consulte un técnico del MAG o del INIAP.</div>
+</div>
+</section>
+
+<section id="cos" class="hide">
+<div class="card">
+<h2>¿Cuántas latas voy a cosechar al año?</h2>
+<div class="g">
+<label>Mazorcas por planta al año (si las contó)<input id="mz" type="number" placeholder="Ej: 25"></label>
+<label>Mazorcas para 1 kg de cacao seco<input id="mzkg" type="number" value="18"></label>
+<label>Libras por lata<input id="lbl" type="number" value="52"></label>
+<label>La lata es de<select id="tl"><option value="baba">Baba (cacao fresco)</option><option value="seco">Cacao seco</option></select></label>
+<label>Kilos de baba para 1 kg seco<input id="rel" type="number" step="0.1" value="2.6"></label>
+</div>
+<button class="btn" id="bCos">Calcular cosecha</button>
+<div id="rCos"></div>
+<div class="note">Calibre los kilos por lata y la relación baba a seco con lo que usted realmente vende. Entre más datos reales ponga, mejor la predicción.</div>
+</div>
+</section>
+
+<section id="reg" class="hide">
+<div class="card">
+<h2>Registro de cosechas</h2>
+<div class="sub">Apunte cada corte. Con el tiempo verá cuánto da realmente su finca.</div>
+<div class="g">
+<label>Fecha del corte<input id="r_fecha" type="date"></label>
+<label>Latas cosechadas<input id="r_lat" type="number" step="0.5" min="0" placeholder="Ej: 12"></label>
+<label>Precio por lata en dólares (opcional)<input id="r_pre" type="number" step="0.01" min="0"></label>
+<label>Nota (opcional)<input id="r_nota" type="text" placeholder="Ej: lote del fondo, mucha monilia"></label>
+</div>
+<button class="btn" id="bReg">Guardar corte</button>
+<div id="rRegMsg" class="note"></div>
+</div>
+<div class="card"><h2 id="regTit">Este año</h2><div id="regRes"></div></div>
+<div class="card"><h2>Cortes anotados</h2><div id="regLista"></div>
+<div class="note">Los datos se guardan solo en este navegador. Si borra los datos del navegador, se pierden.</div></div>
+</section>
+
+<script>
+const API_URL=''; // mismo servidor que sirve la app
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KEYS=['ha','pph','edad','vari','man','suelo'];
+function save(){try{const o={};KEYS.forEach(k=>o[k]=$(k).value);localStorage.setItem('cacao_finca',JSON.stringify(o))}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem('cacao_finca')||'{}');KEYS.forEach(k=>{if(o[k]!=null)$(k).value=o[k]})}catch(e){}}
+load();KEYS.forEach(k=>$(k).addEventListener('input',()=>{save();riego();}));
+const ha=()=>+$('ha').value||0, pph=()=>+$('pph').value||0, plants=()=>ha()*pph();
+const card=(c,t,b)=>`<div class="item ${c}"><b>${t}</b>${b}</div>`;
+const nf=(n,d=0)=>n.toLocaleString('es-EC',{maximumFractionDigits:d});
+
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+ ['hoy','suelo','foto','cos','reg'].forEach(t=>$(t).classList.toggle('hide',t!==b.dataset.t));
+});
+
+/* HOY */
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const TAREAS=[
+['Inicio de lluvias: primera fertilización con el suelo húmedo (si ya tiene análisis, use la pestaña Suelo)','Quitar mazorcas enfermas cada 15 días','Chapear malezas'],
+['Poda fitosanitaria y deschuponado','Vigilar monilia y mazorca negra (mucha humedad)','Limpiar drenajes'],
+['Empieza la cosecha grande: cortar cada 15 días solo mazorcas maduras','Fermentar y secar bien (cerca de 7 % de humedad)','Quitar mazorcas enfermas'],
+['Cosecha: no deje mazorcas maduras en la planta','Quitar mazorcas enfermas y enterrarlas','Segunda fertilización si aún llueve'],
+['Cosecha y fin de lluvias','Controlar malezas antes de la seca','Cubrir el suelo con hojarasca para guardar humedad'],
+['Poda de mantenimiento y regulación de sombra, después de la cosecha grande','Empieza la época seca: planifique el riego','Deschuponado'],
+['Regar cada semana si no llueve','Mantener cobertura (mulch) bajo las plantas','Vigilar chinches y trips'],
+['Riego semanal','Vigilar plagas de la época seca','Podas ligeras si hay ramas secas'],
+['Riego semanal','Deschuponado','Tomar muestra de suelo para analizar antes de las lluvias'],
+['Riego semanal; cosecha pequeña de fin de año','Quitar mazorcas enfermas','Revisar plantas con poco vigor'],
+['Riego semanal','Cosecha secundaria','Mandar el análisis de suelo al laboratorio'],
+['Limpiar drenajes y chapear antes de las lluvias','Comprar abonos según el análisis de suelo','Revisar ramas y chupones']
+];
+const m=new Date().getMonth();
+$('mesTit').textContent='Tareas de '+MESES[m];
+$('tareas').innerHTML=TAREAS[m].map(t=>`<div class="item">${esc(t)}</div>`).join('');
+function riego(){
+ const ll=+$('lluvia').value||0, need=30, def=Math.max(0,need-ll);
+ const area=10000/(pph()||1111), pl=plants(), s=$('suelo').value;
+ const freq={arc:'1 riego pesado cada 7 a 8 días',fra:'1 riego cada 5 a 7 días',are:'2 riegos por semana, más cortos'}[s];
+ let h='';
+ if(ll>80) h=card('wr','Mucha agua','Llovió bastante. No riegue y revise que los drenajes estén limpios; el exceso de agua pudre raíces y favorece hongos.');
+ else if(def<=5) h=card('ok','No hace falta regar','La lluvia cubrió lo que el cacao necesita esta semana (cerca de 30 mm).');
+ else{const l=def*area; h=card('bd','Toca regar',`Faltan unos ${nf(def)} mm. Eso es unos <b style="display:inline">${nf(l)} litros por planta</b> esta semana, y unos ${nf(l*pl/1000,1)} m³ para toda la finca. Frecuencia sugerida: ${freq}.`);}
+ h+=`<div class="note">Prueba de la mano: cave 10 cm y apriete tierra. Si se desbarata del todo, falta agua; si chorrea, sobra.</div>`;
+ $('riego').innerHTML=h;
+}
+$('lluvia').addEventListener('input',riego);riego();
+
+/* SUELO */
+const v=id=>{const x=$(id).value;return x===''?null:+x};
+$('bSuelo').onclick=()=>{
+ const H=ha(),pl=plants(),out=[];
+ const rec=(c,t,txt,prod)=>{let b=esc(txt);
+  if(prod){b+='<ul>'+prod.map(([n,kgha,why])=>`<li>${n}: unos <b style="display:inline">${nf(kgha*H)} kg</b> para ${nf(H,1)} ha (${nf(kgha)} kg/ha, cerca de ${nf(kgha*H*1000/pl)} g por planta). ${why||''}</li>`).join('')+'</ul>';}
+  out.push(card(c,t,b));};
+ const ph=v('s_ph'),mo=v('s_mo'),p=v('s_p'),k=v('s_k'),ca=v('s_ca'),mg=v('s_mg'),s=v('s_s'),na=v('s_na'),zn=v('s_zn'),b=v('s_b');
+ const lowS=s!=null&&s<10;
+ if(ph!=null){
+  if(ph<5.5) rec('bd','pH ácido ('+ph+')','El cacao prefiere pH de 6 a 7. Con suelo ácido las plantas no aprovechan bien el abono.',[['Dolomita o cal agrícola',800,'Aplique repartida bajo la copa y 2 a 3 meses antes de abonar.']]);
+  else if(ph>7.5) rec('wr','pH alcalino ('+ph+')','Puede bloquear zinc, hierro y boro. Use materia orgánica y abonos que acidifiquen, como sulfato de amonio.');
+  else rec('ok','pH bien ('+ph+')','Está en un rango bueno para cacao.');
+ }
+ if(mo!=null){ if(mo<3) rec('wr','Materia orgánica baja ('+mo+' %)','Aporte compost, cascarilla de mazorca o estiércol curado: 2 a 4 kg por planta al año. Para nitrógeno puede usar urea.',[['Urea (46 % N)',130,'Repartida en 2 aplicaciones.']]); else rec('ok','Materia orgánica bien','Siga devolviendo cáscara de mazorca y hojarasca.'); }
+ if(p!=null){ if(p<10) rec('bd','Fósforo bajo ('+p+' ppm)','Importante para raíces y floración.',[['DAP (46 % P2O5)',110,'']]); else if(p<=20) rec('ok','Fósforo medio','Mantenimiento con la fórmula completa.'); else rec('ok','Fósforo alto','No hace falta fósforo por ahora.'); }
+ if(k!=null){ if(k<0.3) rec('bd','Potasio bajo ('+k+')','El potasio llena la mazorca y da más resistencia a enfermedades.',lowS?[['Sulfato de potasio (50 % K2O y 18 % S)',160,'También le aporta azufre.']]:[['Muriato de potasio (60 % K2O)',135,'']]); else if(k>0.8) rec('wr','Potasio alto ('+k+')','No agregue más potasio; puede quitarle magnesio y calcio a la planta.'); else rec('ok','Potasio bien',''); }
+ if(ca!=null){ if(ca<6) rec('wr','Calcio bajo ('+ca+')','Sube con la cal; si también le falta magnesio use dolomita.',ph!=null&&ph<5.5?null:[['Dolomita o yeso agrícola',500,'']]); else rec('ok','Calcio bien',''); }
+ if(mg!=null){ if(mg<1.5) rec('bd','Magnesio bajo ('+mg+')','Se ven hojas amarillas entre las nervaduras.',[['Sulfato de magnesio (16 % MgO)',155,'O dolomita si el pH es ácido.']]); else rec('ok','Magnesio bien',''); }
+ if(s!=null){ if(lowS) rec('wr','Azufre bajo ('+s+' ppm)','Falta azufre (sulfato).',[['Yeso agrícola (cerca de 17 % S)',150,'También aporta calcio y ayuda con el sodio.']]); else rec('ok','Azufre bien',''); }
+ if(na!=null){ if(na>1) rec('bd','Sodio alto ('+na+')','El sodio daña la estructura del suelo y quema raíces. Aplique yeso, mejore el drenaje y evite agua salobre.',[['Yeso agrícola',1000,'Divida en 2 aplicaciones.']]); else rec('ok','Sodio bien',''); }
+ if(zn!=null){ if(zn<3) rec('wr','Zinc bajo ('+zn+' ppm)','Hojas pequeñas y angostas. Aplique sulfato de zinc foliar, 2 a 3 g por litro de agua, 2 veces con 15 días de separación.'); else rec('ok','Zinc bien',''); }
+ if(b!=null){ if(b<0.5) rec('wr','Boro bajo ('+b+' ppm)','Afecta la floración y el cuajado. Bórax foliar, 1 a 2 g por litro de agua, y no se pase de dosis.'); else rec('ok','Boro bien',''); }
+ if(!out.length) out.push(card('wr','Faltan datos','Escriba al menos un valor del análisis.'));
+ $('rSuelo').innerHTML=out.join('')+'<div class="note">Dosis referenciales para cacao adulto. Confirme con un técnico y con el rango exacto que usa su laboratorio. Reparta el abono en 2 veces al año, con suelo húmedo, en media luna bajo la copa y sin pegarlo al tronco.</div>';
+};
+
+/* FOTO */
+let blob=null;
+$('file').onchange=async e=>{
+ const f=e.target.files[0]; if(!f)return;
+ try{
+  const bm=await createImageBitmap(f), sc=Math.min(1,1024/Math.max(bm.width,bm.height));
+  const c=document.createElement('canvas'); c.width=Math.round(bm.width*sc); c.height=Math.round(bm.height*sc);
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+  blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));
+  $('pv').src=URL.createObjectURL(blob); $('pv').classList.remove('hide'); $('bFoto').disabled=false;
+ }catch(err){ $('rFoto').innerHTML=card('bd','No pude leer la foto','Pruebe con otra imagen.'); }
+};
+$('bFoto').onclick=async()=>{
+ const r=$('rFoto'); r.innerHTML=card('','Analizando...','Esto puede tardar unos segundos.'); $('bFoto').disabled=true;
+ try{
+  const fd=new FormData(); fd.append('foto',blob,'foto.jpg'); fd.append('nota',$('nota').value); fd.append('suelo',$('suelo').selectedOptions[0].text); fd.append('edad',$('edad').value);
+  const resp=await fetch(API_URL+'/diagnostico',{method:'POST',body:fd});
+  if(!resp.ok) throw new Error('El servidor respondió '+resp.status);
+  const out=await resp.json();
+  let t=(out.text||'').replace(/```json|```/g,'').trim(), j=null;
+  try{j=JSON.parse(t.slice(t.indexOf('{'),t.lastIndexOf('}')+1))}catch(e){}
+  if(!j){ r.innerHTML=card('','Resultado',esc(t)); return; }
+  const cls={sano:'ok',no_claro:'wr'}[j.estado]||'bd';
+  r.innerHTML=card(cls,esc(j.titulo||'Resultado')+' (confianza '+esc(j.confianza||'?')+')',esc(j.explicacion||''))
+   +card('','Qué hacer','<ul>'+(j.acciones||[]).map(a=>`<li>${esc(a)}</li>`).join('')+'</ul>')
+   +((j.otras_posibilidades||[]).length?card('','Otras posibilidades','<ul>'+j.otras_posibilidades.map(a=>`<li>${esc(a)}</li>`).join('')+'</ul>'):'')
+   +(j.cuando_llamar_tecnico?card('wr','Cuándo llamar al técnico',esc(j.cuando_llamar_tecnico)):'');
+ }catch(err){
+  r.innerHTML=card('wr','No se pudo analizar',esc(err&&err.message||'Intente de nuevo en un momento.'));
+ }finally{$('bFoto').disabled=false}
+};
+
+/* REGISTRO */
+let REG=[];
+try{REG=JSON.parse(localStorage.getItem('cacao_reg')||'[]')}catch(e){}
+function saveReg(){try{localStorage.setItem('cacao_reg',JSON.stringify(REG))}catch(e){}}
+const hoyStr=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+$('r_fecha').value=hoyStr();
+function yearStats(){
+ const y=String(new Date().getFullYear()), yr=REG.filter(r=>r.f.startsWith(y));
+ const lat=yr.reduce((s,r)=>s+r.l,0), ing=yr.reduce((s,r)=>s+(r.p?r.p*r.l:0),0);
+ return {y,yr,lat,ing,n:yr.length};
+}
+function realCard(){
+ const s=yearStats(); if(!s.n) return '';
+ return card('ok','Lo que ya lleva cosechado en '+s.y,`<b style="display:inline">${nf(s.lat,1)} latas</b> en ${s.n} cortes (${nf(s.lat/(ha()||1),1)} latas por hectárea). Compárelo con el estimado de arriba para ver si va por buen camino.`);
+}
+function renderReg(){
+ const s=yearStats();
+ $('regTit').textContent='Resumen de '+s.y;
+ if(!s.n){ $('regRes').innerHTML=card('','Todavía no hay cortes','Anote el primero arriba.'); }
+ else{
+  $('regRes').innerHTML=card('ok','Total del año',`<div class="big">${nf(s.lat,1)} latas</div>${s.n} cortes, promedio ${nf(s.lat/s.n,1)} latas por corte.<br>Unas ${nf(s.lat/(ha()||1),1)} latas por hectárea.`+(s.ing>0?`<br>Ingresos anotados: <b style="display:inline">$${nf(s.ing,2)}</b>`:''));
+ }
+ const L=REG.slice().sort((a,b)=>a.f<b.f?1:-1);
+ $('regLista').innerHTML=L.length?L.map(r=>{const [Y,M,D]=r.f.split('-');
+  return `<div class="item" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><div><b>${D}/${M}/${Y}: ${nf(r.l,1)} latas</b>${r.p?'A $'+nf(r.p,2)+' la lata. ':''}${esc(r.n||'')}</div><button class="btn" style="width:auto;margin:0;padding:6px 10px;font-size:.8rem" data-id="${r.id}">Borrar</button></div>`}).join(''):'<div class="note">Sin cortes todavía.</div>';
+ $('regLista').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  if(b.dataset.s!=='1'){b.dataset.s='1';b.textContent='¿Seguro?';return;}
+  REG=REG.filter(r=>String(r.id)!==b.dataset.id);saveReg();renderReg();
+ });
+}
+$('bReg').onclick=()=>{
+ const f=$('r_fecha').value, l=parseFloat($('r_lat').value), p=parseFloat($('r_pre').value);
+ if(!f||!(l>0)){ $('rRegMsg').textContent='Escriba la fecha y cuántas latas.'; return; }
+ REG.push({id:Date.now(),f,l,p:p>0?p:0,n:$('r_nota').value.trim()});
+ saveReg(); $('r_lat').value='';$('r_nota').value='';
+ $('rRegMsg').textContent='Corte guardado.'; renderReg();
+};
+renderReg();
+
+/* LUNA */
+(function(){
+ const SYN=29.530588853, REF=Date.UTC(2000,0,6,18,14);
+ const age=d=>(((d.getTime()-REF)/86400000)%SYN+SYN)%SYN;
+ const now=new Date(), a=age(now), ill=Math.round((1-Math.cos(2*Math.PI*a/SYN))/2*100);
+ const em=a<1.85||a>=27.68?'🌑':a<7.38?'🌒':a<9.23?'🌓':a<14.77?'🌔':a<16.61?'🌕':a<22.15?'🌖':a<23.99?'🌗':'🌘';
+ let g,nom,hacer,evitar;
+ if(a<2||a>=27.5){g='nueva';nom='Luna nueva';hacer=['Descanso de la planta: buen momento para controlar malezas y plagas','Planificar y preparar herramientas'];evitar=['Podas fuertes','Sembrar o trasplantar'];}
+ else if(a<13.5){g='creciente';nom=a>=7.38&&a<9.23?'Cuarto creciente':'Luna creciente';hacer=['Sembrar, trasplantar e injertar','Abonar y fertilizar: la savia sube y la planta aprovecha mejor','Hacer viveros y semilleros'];evitar=['Podas fuertes (la planta pierde mucha savia)'];}
+ else if(a<16){g='llena';nom='Luna llena';hacer=['Cosechar mazorcas maduras, que vienen más llenas y jugosas','Abonar foliar con buen clima'];evitar=['Podas fuertes','Dejar mazorcas maduras en la planta'];}
+ else{g='menguante';nom=a>=22.15&&a<23.99?'Cuarto menguante':'Luna menguante';hacer=['Podar y deschuponar: la savia baja y la planta sangra menos','Chapear malezas','Quitar mazorcas enfermas','Cosechar mazorcas que va a guardar o fermentar'];evitar=['Sembrar o injertar','Abonar si no es necesario'];}
+ const T=[['Luna nueva',0,'🌑'],['Cuarto creciente',7.38,'🌓'],['Luna llena',14.77,'🌕'],['Cuarto menguante',22.15,'🌗']];
+ const nx=T.map(([n,t,e])=>({n,e,d:new Date(now.getTime()+(((t-a)%SYN+SYN)%SYN)*86400000)})).sort((x,y)=>x.d-y.d);
+ const fm=d=>d.toLocaleDateString('es-EC',{weekday:'short',day:'numeric',month:'short'});
+ $('luna').innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="font-size:3rem;line-height:1">${em}</div><div><b>${nom}</b><br><span class="note">Iluminada ${ill} %</span></div></div>`
+  +card('ok','Buen momento para','<ul>'+hacer.map(x=>`<li>${x}</li>`).join('')+'</ul>')
+  +card('wr','Mejor evitar','<ul>'+evitar.map(x=>`<li>${x}</li>`).join('')+'</ul>')
+  +'<div class="note"><b>Próximas fases:</b> '+nx.map(x=>`${x.e} ${x.n}, ${fm(x.d)}`).join(' · ')+'</div>'
+  +'<div class="note">Esto es tradición de campo y no está comprobado científicamente. Las fechas son aproximadas. Primero mandan la lluvia, el estado de la planta y la cosecha madura; use la luna como guía extra.</div>';
+})();
+
+/* COSECHA */
+$('bCos').onclick=()=>{
+ const age=+$('edad').value||0, vr=$('vari').value, mf=+$('man').value;
+ const af=age<2?0:age<3?.1:age<4?.3:age<5?.55:age<6?.8:age<=20?1:.8;
+ const base={ccn:1000,nac:450,otro:650}[vr];
+ const kgha=base*mf*af, H=ha();
+ let kgMed=kgha*H, kgMin=kgMed*.7, kgMax=kgMed*1.3, extra='';
+ const mz=v('mz'), mzkg=+$('mzkg').value||18;
+ if(mz){ const k2=mz*plants()/mzkg; extra=card('ok','Según sus mazorcas contadas',`${nf(mz)} mazorcas por planta dan unos <b style="display:inline">${nf(k2)} kg secos</b> (${nf(k2/45.36,1)} quintales).`); kgMed=(kgMed+k2*2)/3; kgMin=Math.min(kgMin,kgMed*.8); kgMax=Math.max(kgMax,kgMed*1.2); }
+ const kgl=(+$('lbl').value||52)*0.45359, rel=+$('rel').value||2.6;
+ const L=k=>$('tl').value==='seco'?k/kgl:k*rel/kgl;
+ $('rCos').innerHTML=card('','Estimado de cosecha al año',
+  `<div class="big">${nf(L(kgMin))} a ${nf(L(kgMax))} latas</div>Lo más probable: unas <b style="display:inline">${nf(L(kgMed))} latas</b>.<br>Equivale a ${nf(kgMed)} kg de cacao seco (${nf(kgMed/45.36,1)} quintales), o unos ${nf(kgMed/(H||1))} kg secos por hectárea.`)
+  +extra+realCard()
+  +(af<1?card('wr','Plantas todavía jóvenes','A los '+age+' años las plantas aún no dan su producción completa.'):'')
+  +card('','Cómo subir la cosecha','<ul><li>Poda de mantenimiento y sombra bien regulada</li><li>Abono según análisis de suelo</li><li>Riego en la época seca</li><li>Sacar a tiempo las mazorcas enfermas</li></ul>');
+};
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
